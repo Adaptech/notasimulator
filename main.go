@@ -2,7 +2,29 @@ package main
 
 import (
 	"fmt"
+
+	"github.com/nu7hatch/gouuid"
 )
+
+func main() {
+
+	users := readUserData("data/users.json")
+	fmt.Println("Users/Voters:")
+	fmt.Println(len(users))
+
+	election := readElectionData("data/election.json")
+	fmt.Println(election.Organization.Name)
+	fmt.Println(election.Referendum.Name)
+	fmt.Println(election.Referendum.Proposal)
+
+	const electionAdminID = "admin"
+	createElectionAdmin(electionAdminID)
+
+	aGUID, _ := uuid.NewV4()
+	newOrganizationID := aGUID.String()
+	createOrganization(newOrganizationID, election.Organization.Name)
+
+}
 
 type organization struct {
 	Name string `json:"name"`
@@ -31,19 +53,4 @@ type User struct {
 	AddressCountry  string `json:"addressCountry"`
 	Email           string `json:"email"`
 	Password        string `json:"password"`
-}
-
-func main() {
-
-	users := readUserData("data/users.json")
-	fmt.Println("Users/Voters:")
-	fmt.Println(len(users))
-
-	election := readElectionData("data/election.json")
-	fmt.Println(election.Organization.Name)
-	fmt.Println(election.Referendum.Name)
-	fmt.Println(election.Referendum.Proposal)
-	fmt.Println(election.Referendum.Options)
-	fmt.Println(election.PercentVotesPerHour)
-
 }
