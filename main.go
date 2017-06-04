@@ -24,6 +24,10 @@ func main() {
 	newOrganizationID := aGUID.String()
 	createOrganization(newOrganizationID, election.Organization.Name)
 
+	referendum := election.Referendum
+	a2ndGUID, _ := uuid.NewV4()
+	newReferendumID := a2ndGUID.String()
+	createReferendum(newReferendumID, newOrganizationID, referendum.Name, referendum.Proposal, referendum.Options)
 }
 
 type organization struct {
