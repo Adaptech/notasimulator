@@ -16,6 +16,7 @@ func main() {
 	fmt.Println(election.Organization.Name)
 	fmt.Println(election.Referendum.Name)
 	fmt.Println(election.Referendum.Proposal)
+	fmt.Println(election.NoOfVoters)
 
 	const electionAdminID = "admin"
 	createElectionAdmin(electionAdminID)
@@ -29,9 +30,14 @@ func main() {
 	newReferendumID := a2ndGUID.String()
 	createReferendum(newReferendumID, newOrganizationID, referendum.Name, referendum.Proposal, referendum.Options)
 
-	for _, user := range users {
-		registerVoter(user.ID, newOrganizationID, user.Firstname, user.Lastname, user.StreetAddress, "", user.AddressLocality, user.AddressRegion, user.PostalCode, user.AddressCountry)
+	for cnt, user := range users {
+		if cnt <= election.NoOfVoters {
+			registerVoter(user.ID, newOrganizationID, user.Firstname, user.Lastname, user.StreetAddress, "", user.AddressLocality, user.AddressRegion, user.PostalCode, user.AddressCountry)
+		} else {
+			break
+		}
 	}
+	openPolls(newReferendumID)
 }
 
 type organization struct {
@@ -47,6 +53,7 @@ type Referendum struct {
 type Election struct {
 	Organization        organization
 	Referendum          Referendum
+	NoOfVoters          int      `json:"noOfVoters"`
 	PercentVotesPerHour []string `json:"percentVotesPerHour"`
 }
 
