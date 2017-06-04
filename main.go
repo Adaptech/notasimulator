@@ -28,6 +28,10 @@ func main() {
 	a2ndGUID, _ := uuid.NewV4()
 	newReferendumID := a2ndGUID.String()
 	createReferendum(newReferendumID, newOrganizationID, referendum.Name, referendum.Proposal, referendum.Options)
+
+	for _, user := range users {
+		registerVoter(user.ID, newOrganizationID, user.Firstname, user.Lastname, user.StreetAddress, "", user.AddressLocality, user.AddressRegion, user.PostalCode, user.AddressCountry)
+	}
 }
 
 type organization struct {
