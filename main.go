@@ -38,6 +38,7 @@ func main() {
 		}
 	}
 	openPolls(newReferendumID)
+	closePolls(newReferendumID)
 }
 
 type organization struct {
