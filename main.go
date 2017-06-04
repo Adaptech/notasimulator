@@ -18,17 +18,22 @@ func main() {
 	fmt.Println(election.Referendum.Proposal)
 	fmt.Println(election.NoOfVoters)
 
+	fmt.Printf("Creating Election Admin ...")
 	const electionAdminID = "admin"
 	createElectionAdmin(electionAdminID)
 
+	fmt.Printf("Creating Organization ...")
 	aGUID, _ := uuid.NewV4()
 	newOrganizationID := aGUID.String()
 	createOrganization(newOrganizationID, election.Organization.Name)
 
+	fmt.Printf("Creating Referendum ...")
 	referendum := election.Referendum
 	a2ndGUID, _ := uuid.NewV4()
 	newReferendumID := a2ndGUID.String()
 	createReferendum(newReferendumID, newOrganizationID, referendum.Name, referendum.Proposal, referendum.Options)
+
+	fmt.Printf("Registering Voters ...")
 
 	for cnt, user := range users {
 		if cnt <= election.NoOfVoters {
@@ -37,7 +42,19 @@ func main() {
 			break
 		}
 	}
+
+	fmt.Printf("Opening Polls ...")
 	openPolls(newReferendumID)
+
+	fmt.Printf("Authenticating voters and casting votes ...")
+	for cnt, user := range users {
+		if cnt <= election.NoOfVoters {
+			authenticateVoter(newReferendumID, user.ID, newOrganizationID)
+
+		} else {
+			break
+		}
+	}
 	closePolls(newReferendumID)
 }
 
