@@ -2,6 +2,8 @@ package main
 
 import (
 	"fmt"
+	"math/rand"
+	"time"
 
 	"github.com/nu7hatch/gouuid"
 )
@@ -14,27 +16,26 @@ func main() {
 
 	election := readElectionData("data/election.json")
 	fmt.Println(election.Organization.Name)
-	fmt.Println(election.Referendum.Name)
-	fmt.Println(election.Referendum.Proposal)
 	fmt.Println(election.NoOfVoters)
 
-	fmt.Printf("Creating Election Admin ...")
+	fmt.Println("Creating Election Admin ...")
 	const electionAdminID = "admin"
 	createElectionAdmin(electionAdminID)
 
-	fmt.Printf("Creating Organization ...")
+	fmt.Println("Creating Organization ...")
 	aGUID, _ := uuid.NewV4()
 	newOrganizationID := aGUID.String()
 	createOrganization(newOrganizationID, election.Organization.Name)
 
-	fmt.Printf("Creating Referendum ...")
+	fmt.Println("Creating Referendum ...")
 	referendum := election.Referendum
 	a2ndGUID, _ := uuid.NewV4()
 	newReferendumID := a2ndGUID.String()
 	createReferendum(newReferendumID, newOrganizationID, referendum.Name, referendum.Proposal, referendum.Options)
+	fmt.Println(election.Referendum.Name)
+	fmt.Println(election.Referendum.Proposal)
 
-	fmt.Printf("Registering Voters ...")
-
+	fmt.Println("Registering Voters ...")
 	for cnt, user := range users {
 		if cnt <= election.NoOfVoters {
 			registerVoter(user.ID, newOrganizationID, user.Firstname, user.Lastname, user.StreetAddress, "", user.AddressLocality, user.AddressRegion, user.PostalCode, user.AddressCountry)
@@ -43,14 +44,23 @@ func main() {
 		}
 	}
 
-	fmt.Printf("Opening Polls ...")
+	fmt.Println("Opening Polls ...")
 	openPolls(newReferendumID)
 
-	fmt.Printf("Authenticating voters and casting votes ...")
+	fmt.Println("Authenticating voters and casting votes ...")
+	options := append(election.Referendum.Options, "None of the above")
+	for cnt, option := range options {
+		fmt.Printf("   %v: %v\n", cnt, option)
+	}
+	const noneOfTheAbove = 1
+	noOfChoices := len(options)
+	rand.Seed(time.Now().UTC().UnixNano())
 	for cnt, user := range users {
-		if cnt <= election.NoOfVoters {
+		if cnt < election.NoOfVoters {
 			authenticateVoter(newReferendumID, user.ID, newOrganizationID)
-
+			voteToCast := rand.Intn(noOfChoices)
+			fmt.Printf("Choice: %v, voting %v.\n", voteToCast, options[voteToCast])
+			castVote(newReferendumID, user.ID, options[voteToCast])
 		} else {
 			break
 		}
