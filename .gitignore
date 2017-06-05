@@ -26,7 +26,6 @@ twarvest
 run.sh
 .vscode
 debug
-data
 setenv.sh
 setenv.sh.*
 cmd/recordmetrics/recordmetrics

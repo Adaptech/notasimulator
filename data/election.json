@@ -1,0 +1,17 @@
+{
+  "organization": {
+    "name": "Burnaby-Lougheed Provincial Electoral District"
+  },
+  "noOfVoters" : 100,
+  "referendum": {
+    "name": "General Election 2017",
+    "proposal": "Candidates",
+    "options": [
+      "Steve Darling (Liberal)",
+      "Katrina Chen (NDP)",
+      "Joe Keithley",
+      "Sylvia Gung (Ind.)",
+      "Neeraj Murarka (Ltn.)"
+    ]
+  }
+}
