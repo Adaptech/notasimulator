@@ -2,24 +2,29 @@ package main
 
 import (
 	"encoding/json"
-	"fmt"
 	"io/ioutil"
 	"os"
 )
 
-func readElectionData(filePath string) Election {
-	// Election:
+func readElectionData(filePath string) (*Election, error) {
+	var election Election
+
 	jsonFile, err := os.Open(filePath)
 	if err != nil {
-		fmt.Println(err)
+		return nil, err
 	}
+
 	defer jsonFile.Close()
 
-	var election Election
-	byteValue, _ := ioutil.ReadAll(jsonFile)
+	byteValue, err := ioutil.ReadAll(jsonFile)
+	if err != nil {
+		return nil, err
+	}
+
 	err = json.Unmarshal(byteValue, &election)
 	if err != nil {
-		fmt.Println(err)
+		return nil, err
 	}
-	return election
+
+	return &election, nil
 }

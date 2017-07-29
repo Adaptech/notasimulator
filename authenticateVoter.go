@@ -1,31 +1,19 @@
 package main
 
-import (
-	"fmt"
-	"io/ioutil"
-	"net/http"
-	"strings"
-)
+type AuthenticateVoterRequest struct {
+	ReferendumId   string `json:"referendumId"`
+	VoterId        string `json:"voterId"`
+	OrganizationId string `json:"organizationId"`
+}
 
-func authenticateVoter(referendumID string, voterID string, organizationID string) {
-
-	url := "http://localhost:3001/api/v1/organization/referendum/voter/authenticate"
-
-	requestBody := fmt.Sprintf("{\n   \"referendumId\": \"%v\",\n   \"voterId\": \"%v\",\n   \"organizationId\": \"%v\"\n}", referendumID, voterID, organizationID)
-	payload := strings.NewReader(requestBody)
-
-	req, _ := http.NewRequest("POST", url, payload)
-
-	req.Header.Add("content-type", "application/json")
-	req.Header.Add("cache-control", "no-cache")
-
-	res, _ := http.DefaultClient.Do(req)
-
-	defer res.Body.Close()
-	body, _ := ioutil.ReadAll(res.Body)
-
-	if res.Status != "202 Accepted" {
-		fmt.Println(res)
-		fmt.Println(string(body))
-	}
+func authenticateVoter(referendumID string, voterID string, organizationID string) error {
+	err := jsonReq(
+		"http://localhost:3001/api/v1/organization/referendum/voter/authenticate",
+		AuthenticateVoterRequest{
+			ReferendumId:   referendumID,
+			VoterId:        voterID,
+			OrganizationId: organizationID,
+		},
+	)
+	return err
 }

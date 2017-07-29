@@ -1,31 +1,28 @@
 package main
 
-import (
-	"fmt"
-	"io/ioutil"
-	"net/http"
-	"strings"
-)
+type CreateElectionAdminRequest struct {
+	ElectionAdminId string `json:"electionAdminId"`
+	Firstname       string `json:"firstname"`
+	Lastname        string `json:"lastname"`
+	Address         `json:"address"`
+}
 
-func createElectionAdmin(id string) {
-
-	url := "http://localhost:3001/api/v1/electionadmin/create"
-
-	requestBody := fmt.Sprintf("{\n   \"electionAdminId\": \"%v\",\n   \"firstname\": \"Joe\",\n   \"lastname\": \"Admin\",\n   \"address\": {\n      \"streetAddress\": \"405 E. Stueben\",\n      \"postOfficeBoxNumber\": null,\n      \"addressLocality\": \"Bingen\",\n      \"addressRegion\": \"WA\",\n      \"postalCode\": \"98605\",\n      \"addressCountry\": \"US\"\n   }\n}", id)
-	payload := strings.NewReader(requestBody)
-
-	req, _ := http.NewRequest("POST", url, payload)
-
-	req.Header.Add("content-type", "application/json")
-	req.Header.Add("cache-control", "no-cache")
-
-	res, _ := http.DefaultClient.Do(req)
-
-	defer res.Body.Close()
-	body, _ := ioutil.ReadAll(res.Body)
-
-	if res.Status != "202 Accepted" {
-		fmt.Println(res)
-		fmt.Println(string(body))
-	}
+func createElectionAdmin(id string) (adminId string, err error) {
+	err = jsonReq(
+		"http://localhost:3001/api/v1/electionadmin/create",
+		CreateElectionAdminRequest{
+			ElectionAdminId: id,
+			Firstname:       "Joe",
+			Lastname:        "Admin",
+			Address: Address{
+				StreetAddress:       "405 E. Stueben",
+				PostOfficeBoxNumber: "",
+				AddressLocality:     "Bingen",
+				AddressRegion:       "WA",
+				PostalCode:          "98605",
+				AddressCountry:      "US",
+			},
+		},
+	)
+	return id, err
 }
