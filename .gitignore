@@ -31,6 +31,6 @@ setenv.sh.*
 cmd/recordmetrics/recordmetrics
 .env
 **/notasimulator
-
+**/vendor/**
 
 

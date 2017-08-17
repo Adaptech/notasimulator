@@ -1,18 +1,18 @@
 package main
 
-type CreateOrganizationRequest struct {
-	OrganizationId  string `json:"organizationId"`
+type createOrganizationRequest struct {
+	OrganizationID  string `json:"organizationId"`
 	Name            string `json:"name"`
-	ElectionAdminId string `json:"electionAdminId"`
+	ElectionAdminID string `json:"electionAdminId"`
 }
 
-func createOrganization(id string, name string) (organizationId string, err error) {
+func createOrganization(id string, name string) (organizationID string, err error) {
 	err = jsonReq(
-		"http://localhost:3001/api/v1/organization/create",
-		CreateOrganizationRequest{
-			OrganizationId:  id,
+		"/api/v1/organization/create",
+		createOrganizationRequest{
+			OrganizationID:  id,
 			Name:            name,
-			ElectionAdminId: "admin-1",
+			ElectionAdminID: "admin-1",
 		},
 	)
 	return id, err

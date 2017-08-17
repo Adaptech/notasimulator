@@ -1,14 +1,14 @@
 package main
 
-type OpenPollsRequest struct {
-	ReferendumId string `json:"referendumId"`
+type openPollsRequest struct {
+	ReferendumID string `json:"referendumId"`
 }
 
 func openPolls(referendumID string) error {
 	err := jsonReq(
-		"http://localhost:3001/api/v1/organization/referendum/polls/open",
-		OpenPollsRequest{
-			ReferendumId: referendumID,
+		"/api/v1/organization/referendum/polls/open",
+		openPollsRequest{
+			ReferendumID: referendumID,
 		},
 	)
 	return err

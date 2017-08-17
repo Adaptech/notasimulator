@@ -14,6 +14,8 @@ func jsonReq(url string, reqJSON interface{}) error {
 		return err
 	}
 
+	url = notaAddr + url
+
 	req, err := http.NewRequest("POST", url, bytes.NewBuffer(requestBody))
 	if err != nil {
 		return err

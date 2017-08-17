@@ -1,18 +1,16 @@
 package main
 
 import (
-	"fmt"
+	"flag"
 	"github.com/golang-plus/uuid"
 	"log"
-	"math/rand"
-	"time"
 )
 
 type organization struct {
 	Name string `json:"name"`
 }
 
-type Referendum struct {
+type referendum struct {
 	Name     string   `json:"name"`
 	Proposal string   `json:"proposal"`
 	Options  []string `json:"options"`
@@ -20,12 +18,12 @@ type Referendum struct {
 
 type Election struct {
 	Organization        organization
-	Referendum          Referendum
+	Referendum          referendum
 	NoOfVoters          int      `json:"noOfVoters"`
 	PercentVotesPerHour []string `json:"percentVotesPerHour"`
 }
 
-type User struct {
+type user struct {
 	ID              string `json:"userId"`
 	Firstname       string `json:"firstname"`
 	Lastname        string `json:"lastname"`
@@ -38,7 +36,7 @@ type User struct {
 	Password        string `json:"password"`
 }
 
-type Address struct {
+type address struct {
 	StreetAddress       string `json:"streetAddress"`
 	PostOfficeBoxNumber string `json:"postOfficeBoxNumber"`
 	AddressLocality     string `json:"addressLocality"`
@@ -47,29 +45,43 @@ type Address struct {
 	AddressCountry      string `json:"addressCountry"`
 }
 
+var (
+	notaAddr string
+	gesAddr  string
+)
+
+func parseFlags() {
+	flag.IntVar(&duration, "d", 10, "Duration of election")
+	flag.StringVar(&notaAddr, "notaAddr", "http://localhost:3001", "NOTA Address")
+	flag.StringVar(&gesAddr, "gesAddr", "tcp://127.0.0.1:1113", "EventStore Address")
+	flag.Parse()
+}
+
 func main() {
+	parseFlags()
+
 	users, err := readUserData("data/users.json")
 	if err != nil {
 		log.Fatalf("Error reading user data: %v", err)
 	}
 
-	fmt.Println("Users/Voters:", len(users))
+	log.Println("Users/Voters:", len(users))
 
 	election, err := readElectionData("data/election.json")
 	if err != nil {
 		log.Fatalf("Error reading election data: %v", err)
 	}
 
-	fmt.Println(election.Organization.Name)
-	fmt.Println(election.NoOfVoters)
-	fmt.Println("Creating Election Admin ...")
+	log.Println(election.Organization.Name)
+	log.Println(election.NoOfVoters)
+	log.Println("Creating Election Admin ...")
 
 	electionAdminID, err := createElectionAdmin("admin")
 	if err != nil {
 		log.Fatalf("Error creating election admin %v: %v", electionAdminID, err)
 	}
 
-	fmt.Println("Creating Organization ...")
+	log.Println("Creating Organization ...")
 
 	organizationGUID, err := uuid.NewV4()
 	if err != nil {
@@ -81,7 +93,7 @@ func main() {
 		log.Fatalf("Error creating organization: %v", err)
 	}
 
-	fmt.Println("Creating Referendum ...")
+	log.Println("Creating Referendum ...")
 
 	referendumGUID, err := uuid.NewV4()
 	if err != nil {
@@ -99,9 +111,11 @@ func main() {
 		log.Fatalf("Error creating referendum: %v", err)
 	}
 
-	fmt.Println(election.Referendum.Name)
-	fmt.Println(election.Referendum.Proposal)
-	fmt.Println("Registering Voters ...")
+	log.Println(election.Referendum.Name)
+	log.Println(election.Referendum.Proposal)
+	log.Println("Registering Voters ...")
+
+	go errorStream()
 
 	for count, user := range users {
 		if count <= election.NoOfVoters {
@@ -117,52 +131,30 @@ func main() {
 				user.PostalCode,
 				user.AddressCountry,
 			); err != nil {
-				log.Printf("Error creating voter: %v", err)
+				createErr("CreatingVoterError", err)
 			}
 		} else {
 			break
 		}
 	}
 
-	fmt.Println("Opening Polls ...")
+	log.Println("Opening Polls ...")
 
 	if err := openPolls(newReferendumID); err != nil {
-		log.Fatalf("Error opening polls: %v", err)
+		createErr("OpeningPollsError", err)
 	}
 
-	fmt.Println("Authenticating voters and casting votes ...")
+	log.Println("Authenticating voters and casting votes ...")
 
 	options := append(election.Referendum.Options, "None of the above")
 
 	for count, option := range options {
-		fmt.Printf("   %v: %v\n", count, option)
+		log.Printf("   %v: %v\n", count, option)
 	}
 
-	choices := len(options)
-
-	rand.Seed(time.Now().UTC().UnixNano())
-
-	for count, user := range users {
-		if count < election.NoOfVoters {
-			err := authenticateVoter(newReferendumID, user.ID, newOrganizationID)
-			if err != nil {
-				log.Printf("Error authenticating voter: %v", err)
-			}
-
-			voteToCast := rand.Intn(choices)
-
-			fmt.Printf("Choice: %v, voting %v.\n", voteToCast, options[voteToCast])
-
-			if err := castVote(newReferendumID, user.ID, options[voteToCast]); err != nil {
-				log.Printf("Error casting vote: %v", err)
-			}
-
-		} else {
-			break
-		}
-	}
+	runElection(users, election.NoOfVoters, newReferendumID, newOrganizationID, options)
 
 	if err := closePolls(newReferendumID); err != nil {
-		log.Fatalf("Error closing polls: %v", err)
+		createErr("ClosingPollsError", err)
 	}
 }

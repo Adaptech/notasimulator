@@ -1,18 +1,18 @@
 package main
 
-type AuthenticateVoterRequest struct {
-	ReferendumId   string `json:"referendumId"`
-	VoterId        string `json:"voterId"`
-	OrganizationId string `json:"organizationId"`
+type authenticateVoterRequest struct {
+	ReferendumID   string `json:"referendumId"`
+	VoterID        string `json:"voterId"`
+	OrganizationID string `json:"organizationId"`
 }
 
 func authenticateVoter(referendumID string, voterID string, organizationID string) error {
 	err := jsonReq(
-		"http://localhost:3001/api/v1/organization/referendum/voter/authenticate",
-		AuthenticateVoterRequest{
-			ReferendumId:   referendumID,
-			VoterId:        voterID,
-			OrganizationId: organizationID,
+		"/api/v1/organization/referendum/voter/authenticate",
+		authenticateVoterRequest{
+			ReferendumID:   referendumID,
+			VoterID:        voterID,
+			OrganizationID: organizationID,
 		},
 	)
 	return err

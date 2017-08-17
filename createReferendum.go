@@ -1,19 +1,19 @@
 package main
 
-type CreateReferendumRequest struct {
-	ReferendumId   string   `json:"referendumId"`
-	OrganizationId string   `json:"organizationId"`
+type createReferendumRequest struct {
+	ReferendumID   string   `json:"referendumId"`
+	OrganizationID string   `json:"organizationId"`
 	Name           string   `json:"name"`
 	Proposal       string   `json:"proposal"`
 	Options        []string `json:"options"`
 }
 
-func createReferendum(id string, organizationID string, name string, proposal string, options []string) (referendumId string, err error) {
+func createReferendum(id string, organizationID string, name string, proposal string, options []string) (referendumID string, err error) {
 	err = jsonReq(
-		"http://localhost:3001/api/v1/organization/referendum/create",
-		CreateReferendumRequest{
-			ReferendumId:   id,
-			OrganizationId: organizationID,
+		"/api/v1/organization/referendum/create",
+		createReferendumRequest{
+			ReferendumID:   id,
+			OrganizationID: organizationID,
 			Name:           name,
 			Proposal:       proposal,
 			Options:        options,

@@ -6,15 +6,13 @@ import (
 	"os"
 )
 
-func readUserData(filePath string) (user []User, err error) {
+func readUserData(filePath string) (users []user, err error) {
 	jsonFile, err := os.Open(filePath)
 	if err != nil {
 		return nil, err
 	}
 
 	defer jsonFile.Close()
-
-	var users []User
 
 	byteValue, err := ioutil.ReadAll(jsonFile)
 	if err != nil {
