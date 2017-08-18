@@ -2,24 +2,27 @@ package main
 
 import (
 	"encoding/json"
-	"fmt"
 	"io/ioutil"
 	"os"
 )
 
-func readUserData(filePath string) []User {
-	// Users:
+func readUserData(filePath string) (users []user, err error) {
 	jsonFile, err := os.Open(filePath)
 	if err != nil {
-		fmt.Println(err)
+		return nil, err
 	}
+
 	defer jsonFile.Close()
 
-	var users []User
-	byteValue, _ := ioutil.ReadAll(jsonFile)
+	byteValue, err := ioutil.ReadAll(jsonFile)
+	if err != nil {
+		return nil, err
+	}
+
 	err = json.Unmarshal(byteValue, &users)
 	if err != nil {
-		fmt.Println(err)
+		return nil, err
 	}
-	return users
+
+	return users, nil
 }

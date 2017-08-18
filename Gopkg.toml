@@ -1,0 +1,15 @@
+[[constraint]]
+  name = "github.com/golang-plus/uuid"
+  version = "1.0.0"
+
+[[constraint]]
+  branch = "master"
+  name = "github.com/jdextraze/go-gesclient"
+
+[[constraint]]
+  name = "github.com/satori/go.uuid"
+  version = "1.1.0"
+
+[[constraint]]
+  name = "github.com/op/go-logging"
+  revision = "970db520ece77730c7e4724c61121037378659d9"
